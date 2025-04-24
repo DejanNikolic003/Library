@@ -1,8 +1,14 @@
 const myLibrary = [];
 
+const bookContainer = document.querySelector(".book-container");
+
 const bookTitle = document.querySelector(".book-title");
 const bookAuthor = document.querySelector(".book-author");
 const bookPages = document.querySelector(".book-pages");
+
+const searchInput = document.querySelector(".search");
+
+let booksReturnedOnSearch = [];
 
 class Book {
   constructor(title, author, pages) {
@@ -42,9 +48,47 @@ const getBookIndexById = (bookId) => {
   return myLibrary.findIndex((book) => book.id === bookId);
 };
 
-const listBooks = () => {
-  const bookContainer = document.querySelector(".book-container");
+const storeBook = (event) => {
+  event.preventDefault();
+
+  if (!validateBookStoring()) {
+    return alert("Validation error!");
+  }
+  addBookToLibrary(bookTitle.value, bookAuthor.value, bookPages.value);
+
+  bookTitle.value = "";
+  bookAuthor.value = "";
+  bookPages.value = "";
+
+  renderBooks();
+};
+
+const validateBookStoring = () => {
+  if (
+    bookTitle.value === "" ||
+    bookAuthor.value === "" ||
+    bookPages.value === ""
+  ) {
+    return false;
+  }
+
+  if (isNaN(bookPages.value)) {
+    return false;
+  }
+
+  return true;
+};
+
+const renderBooks = () => {
   bookContainer.innerHTML = "";
+
+  if (myLibrary.length === 0) {
+    const bookTitle = document.createElement("h1");
+    bookTitle.textContent = "No books found.";
+    bookContainer.append(bookTitle);
+
+    return;
+  }
 
   bookContainer.append(
     ...myLibrary.map((book) => {
@@ -77,38 +121,20 @@ const listBooks = () => {
   handleEventListeners();
 };
 
-const handleBookAddition = (event) => {
-  event.preventDefault();
+const searchBooks = (event) => {
+  const books = document.querySelectorAll(".book");
+  let searchValue = event.target.value.trim().toLowerCase();
 
-  if (!validateBookStoring()) {
-    return alert("Validation error!");
+  if (!searchValue) {
+    renderBooks();
+    return;
   }
 
-  // console.log(validateBookStoring);
+  books.forEach((book) => {
+    const bookTitle = book.querySelector("h1").textContent.toLowerCase().trim();
 
-  addBookToLibrary(bookTitle.value, bookAuthor.value, bookPages.value);
-
-  bookTitle.value = "";
-  bookAuthor.value = "";
-  bookPages.value = "";
-
-  listBooks();
-};
-
-const validateBookStoring = () => {
-  if (
-    bookTitle.value === "" ||
-    bookAuthor.value === "" ||
-    bookPages.value === ""
-  ) {
-    return false;
-  }
-
-  if (isNaN(bookPages.value)) {
-    return false;
-  }
-
-  return true;
+    book.style.display = bookTitle.includes(searchValue) ? "" : "none";
+  });
 };
 
 const handleEventListeners = () => {
@@ -121,7 +147,7 @@ const handleEventListeners = () => {
       const book = event.target.closest(".book");
 
       removeBookFromLibrary(book.dataset.id);
-      listBooks();
+      renderBooks();
     });
   });
 
@@ -130,15 +156,16 @@ const handleEventListeners = () => {
       const book = event.target.closest(".book");
 
       changeBookReadStatus(book.dataset.id);
-      listBooks();
+      renderBooks();
     });
   });
 
-  addBookButton.addEventListener("click", handleBookAddition);
+  addBookButton.addEventListener("click", storeBook);
+  searchInput.addEventListener("input", searchBooks);
 };
 
 addBookToLibrary("Test", "Test", 200, false);
 
 (function () {
-  listBooks();
+  renderBooks();
 })();
