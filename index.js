@@ -1,12 +1,16 @@
 const myLibrary = [];
 
+const bookTitle = document.querySelector(".book-title");
+const bookAuthor = document.querySelector(".book-author");
+const bookPages = document.querySelector(".book-pages");
+
 class Book {
-  constructor(title, author, pages, isRead) {
+  constructor(title, author, pages) {
     this.id = crypto.randomUUID();
     this.title = title;
     this.author = author;
     this.pages = pages;
-    this.isRead = isRead;
+    this.isRead = false;
   }
 
   toggleRead() {
@@ -42,38 +46,75 @@ const listBooks = () => {
   const bookContainer = document.querySelector(".book-container");
   bookContainer.innerHTML = "";
 
-  myLibrary.forEach((book) => {
-    const bookWrapper = document.createElement("div");
-    const bookTitle = document.createElement("h1");
-    const bookIsRead = document.createElement("h2");
-    const bookRemoveButton = document.createElement("button");
-    const bookIsReadButton = document.createElement("button");
+  bookContainer.append(
+    ...myLibrary.map((book) => {
+      const bookWrapper = document.createElement("div");
+      const bookTitle = document.createElement("h1");
+      const bookIsRead = document.createElement("h2");
+      const bookRemoveButton = document.createElement("button");
+      const bookIsReadButton = document.createElement("button");
 
-    bookWrapper.classList.add("book");
-    bookWrapper.dataset.id = book.id;
-    bookTitle.textContent = book.title;
-    bookIsRead.textContent = book.isRead ? "Yes" : "No";
-    bookRemoveButton.classList.add("removeBtn");
-    bookRemoveButton.textContent = "Remove";
-    bookIsReadButton.classList.add("isReadBtn");
-    bookIsReadButton.textContent = book.isRead ? "Unread" : "Read";
+      bookWrapper.classList.add("book");
+      bookWrapper.dataset.id = book.id;
+      bookTitle.textContent = book.title;
+      bookIsRead.textContent = book.isRead ? "Yes" : "No";
+      bookRemoveButton.classList.add("removeBtn");
+      bookRemoveButton.textContent = "Remove";
+      bookIsReadButton.classList.add("isReadBtn");
+      bookIsReadButton.textContent = book.isRead ? "Unread" : "Read";
 
-    bookWrapper.append(
-      bookTitle,
-      bookIsRead,
-      bookRemoveButton,
-      bookIsReadButton
-    );
+      bookWrapper.append(
+        bookTitle,
+        bookIsRead,
+        bookRemoveButton,
+        bookIsReadButton
+      );
 
-    bookContainer.append(bookWrapper);
-  });
+      return bookWrapper;
+    })
+  );
 
   handleEventListeners();
+};
+
+const handleBookAddition = (event) => {
+  event.preventDefault();
+
+  if (!validateBookStoring()) {
+    return alert("Validation error!");
+  }
+
+  // console.log(validateBookStoring);
+
+  addBookToLibrary(bookTitle.value, bookAuthor.value, bookPages.value);
+
+  bookTitle.value = "";
+  bookAuthor.value = "";
+  bookPages.value = "";
+
+  listBooks();
+};
+
+const validateBookStoring = () => {
+  if (
+    bookTitle.value === "" ||
+    bookAuthor.value === "" ||
+    bookPages.value === ""
+  ) {
+    return false;
+  }
+
+  if (isNaN(bookPages.value)) {
+    return false;
+  }
+
+  return true;
 };
 
 const handleEventListeners = () => {
   const removeButtons = document.querySelectorAll(".removeBtn");
   const readButtons = document.querySelectorAll(".isReadBtn");
+  const addBookButton = document.querySelector(".addBookBtn");
 
   removeButtons.forEach((button) => {
     button.addEventListener("click", (event) => {
@@ -92,6 +133,8 @@ const handleEventListeners = () => {
       listBooks();
     });
   });
+
+  addBookButton.addEventListener("click", handleBookAddition);
 };
 
 addBookToLibrary("Test", "Test", 200, false);
