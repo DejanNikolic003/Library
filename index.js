@@ -2,9 +2,9 @@ const myLibrary = [];
 
 const bookContainer = document.querySelector(".book-container");
 
-const bookTitle = document.querySelector(".book-title");
-const bookAuthor = document.querySelector(".book-author");
-const bookPages = document.querySelector(".book-pages");
+const bookTitleInput = document.querySelector(".book-title");
+const bookAuthorInput = document.querySelector(".book-author");
+const bookPagesInput = document.querySelector(".book-pages");
 
 const searchInput = document.querySelector(".search");
 
@@ -54,25 +54,29 @@ const storeBook = (event) => {
   if (!validateBookStoring()) {
     return alert("Validation error!");
   }
-  addBookToLibrary(bookTitle.value, bookAuthor.value, bookPages.value);
+  addBookToLibrary(
+    bookTitleInput.value,
+    bookAuthorInput.value,
+    bookPagesInput.value
+  );
 
-  bookTitle.value = "";
-  bookAuthor.value = "";
-  bookPages.value = "";
+  bookTitleInput.value = "";
+  bookAuthorInput.value = "";
+  bookPagesInput.value = "";
 
   renderBooks();
 };
 
 const validateBookStoring = () => {
   if (
-    bookTitle.value === "" ||
-    bookAuthor.value === "" ||
-    bookPages.value === ""
+    bookTitleInput.value === "" ||
+    bookAuthorInput.value === "" ||
+    bookPagesInput.value === ""
   ) {
     return false;
   }
 
-  if (isNaN(bookPages.value)) {
+  if (isNaN(bookPagesInput.value)) {
     return false;
   }
 
@@ -86,28 +90,71 @@ const renderBooks = () => {
     const bookTitle = document.createElement("h1");
     bookTitle.textContent = "No books found.";
     bookContainer.append(bookTitle);
-
     return;
   }
 
   bookContainer.append(
     ...myLibrary.map((book) => {
       const bookWrapper = document.createElement("div");
-      const bookTitle = document.createElement("h1");
+      const bookAuthorWrapper = document.createElement("div");
+      const bookTitle = document.createElement("div");
+      const bookAuthor = document.createElement("h1");
       const bookIsRead = document.createElement("h2");
       const bookRemoveButton = document.createElement("button");
       const bookIsReadButton = document.createElement("button");
 
-      bookWrapper.classList.add("book");
+      bookWrapper.classList.add("book", "p-2", "bg-neutral-900", "rounded-md");
       bookWrapper.dataset.id = book.id;
-      bookTitle.textContent = book.title;
-      bookIsRead.textContent = book.isRead ? "Yes" : "No";
-      bookRemoveButton.classList.add("removeBtn");
+      bookTitle.textContent = "Title: " + book.title;
+      bookAuthor.textContent = book.author;
+      bookIsRead.textContent = "Read: " + (book.isRead ? "Yes" : "No");
+
+      bookTitle.classList.add("title", "text-sm", "mt-2");
+      bookIsRead.classList.add("text-sm");
+      bookRemoveButton.classList.add(
+        "removeBtn",
+        "w-fit",
+        "text-[12px]",
+        "bg-red-600",
+        "hover:bg-red-700",
+        "text-white",
+        "p-[3px]",
+        "rounded-md",
+        "transition",
+        "cursor-pointer",
+        "mt-2",
+        "mr-2"
+      );
       bookRemoveButton.textContent = "Remove";
-      bookIsReadButton.classList.add("isReadBtn");
+      bookIsReadButton.classList.add(
+        "isReadBtn",
+        "w-fit",
+        "text-[12px]",
+        "bg-sky-600",
+        "hover:bg-sky-700",
+        "text-white",
+        "p-[3px]",
+        "rounded-md",
+        "transition",
+        "cursor-pointer",
+        "mt-2"
+      );
       bookIsReadButton.textContent = book.isRead ? "Unread" : "Read";
 
+      bookAuthorWrapper.classList.add(
+        "w-fit",
+        "text-[12px]",
+        "bg-[#2a8278]",
+        "text-white",
+        "p-[3px]",
+        "rounded-md"
+      );
+
+      bookAuthor.classList.add("whitespace-normal");
+      bookAuthorWrapper.append(bookAuthor);
+
       bookWrapper.append(
+        bookAuthorWrapper,
         bookTitle,
         bookIsRead,
         bookRemoveButton,
@@ -131,7 +178,10 @@ const searchBooks = (event) => {
   }
 
   books.forEach((book) => {
-    const bookTitle = book.querySelector("h1").textContent.toLowerCase().trim();
+    const bookTitle = book
+      .querySelector(".title")
+      .textContent.toLowerCase()
+      .trim();
 
     book.style.display = bookTitle.includes(searchValue) ? "" : "none";
   });
